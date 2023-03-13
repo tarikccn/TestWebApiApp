@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "H4CiG2lMHW9QQrX1F3hoT+AXeazeb5C3IFOEZKNM6yH3s1WLgMqapwPUsZ7Mjonb4bWjxZ/Sh5qUpgAxTGjv5w==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Bhop\\Desktop\\VisualStudioProject\\TestWebApiApp\\TestWebApiApp\\TestWebApiApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Bhop\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
