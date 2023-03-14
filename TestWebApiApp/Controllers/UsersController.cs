@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using TestWebApiApp.Data;
 using TestWebApiApp.Models;
+using MySql.Data.MySqlClient;
+using System;
 
 namespace TestWebApiApp.Controllers
 
@@ -16,15 +18,15 @@ namespace TestWebApiApp.Controllers
     {
         private const string FILENAME = "users.json";
         private List<User> _users = UsersData.GetUsers();
-        
-
+        string connectionString = "Server=192.168.1.21;Port=3306;Database=DenemeDB;Uid=remote_user;Password=rootroot;";
+        //veritabanindaki butun veriler cek //GET METHOD
         [HttpGet]
         public List<User> Get()
         {
             return _users;
         }
 
-
+        //veritabanindaki eslesen id verilerini cek //GET METHOD
         [HttpGet("{id}")]
         public User Get(int id)
         {
@@ -35,26 +37,56 @@ namespace TestWebApiApp.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] User user)
         {
+            MySqlConnection connection = new MySqlConnection(connectionString);
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = "INSERT INTO Users (firstname, lastname) VALUES (@firstname, @lastname);";
 
-            if (_users.Any(u => u.Id == user.Id))
+            //command.Parameters.AddWithValue("@id", user.Id);
+            command.Parameters.AddWithValue("@firstname", user.FirstName);
+            command.Parameters.AddWithValue("@lastname", user.LastName);
+
+            try
             {
-                return BadRequest("Aynı kimliğe sahip bir kullanıcı zaten var.");
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+                return Ok(user);
             }
-
-            _users.Add(user);
-            System.IO.File.WriteAllText(FILENAME, JsonConvert.SerializeObject(_users));
-            return Ok(user);
+            catch (Exception ex)
+            {
+                Console.WriteLine("Hata: " + ex.Message);
+                return BadRequest("Kullanıcı eklenirken bir hata oluştu.");
+            }
         }
 
-        [HttpPut] 
+        [HttpPut]
         public User Put([FromBody] User user)
         {
             var editedUser = _users.FirstOrDefault(x => x.Id == user.Id);
-            editedUser.FirstName = user.FirstName;
-            editedUser.LastName = user.LastName;
-            System.IO.File.WriteAllText(FILENAME, JsonConvert.SerializeObject(_users));
+            if (editedUser != null)
+            {
+                editedUser.FirstName = user.FirstName;
+                editedUser.LastName = user.LastName;
 
-            return user;
+                MySqlConnection connection = new MySqlConnection(connectionString);
+                connection.Open();
+
+                string query = "UPDATE Users SET FirstName = @FirstName, LastName = @LastName WHERE Id = @Id";
+                MySqlCommand command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Id", user.Id);
+                command.Parameters.AddWithValue("@FirstName", user.FirstName);
+                command.Parameters.AddWithValue("@LastName", user.LastName);
+                int rowsAffected = command.ExecuteNonQuery();
+
+                connection.Close();
+
+
+                return user;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

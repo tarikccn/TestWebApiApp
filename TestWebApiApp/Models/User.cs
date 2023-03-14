@@ -17,5 +17,10 @@ namespace TestWebApiApp.Models
             FirstName = firstName;
             LastName = lastName;
         }
+
+        public User()
+        {
+
+        }
     }
 }
